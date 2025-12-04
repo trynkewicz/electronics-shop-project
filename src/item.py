@@ -25,9 +25,12 @@ class Item:
         return f"{self.__class__.__name__}('{self.name}', {self.price}, {self.quantity})"
 
     def __str__(self):
-        return f"{self.name}"
+        return f'{self.name}'
 
-
+    def __add__(self, other):
+        if isinstance(other, Item):
+            return self.quantity + other.quantity
+        raise TypeError("Складывать можно только объекты Item или Phone.")
 
     @property
     def name(self):
