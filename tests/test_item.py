@@ -1,6 +1,7 @@
 """Здесь надо написать тесты с использованием pytest для модуля item."""
 import pytest
-from src.item import Item
+import os
+from src.item import Item, InstantiateCSVError
 from src.phone import Phone
 
 
@@ -59,3 +60,4 @@ def test_item_add_phone():
 
     assert item + phone == 25
     assert phone + item == 25
+

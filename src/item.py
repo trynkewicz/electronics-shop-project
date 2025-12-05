@@ -1,6 +1,9 @@
 import csv
 import os
 
+class InstantiateCSVError(Exception):
+    pass
+
 class Item:
     """
     Класс для представления товара в магазине.
@@ -67,13 +70,29 @@ class Item:
         dir_path = os.path.dirname(__file__)  # папка src/
         full_path = os.path.join(dir_path, filename)
 
-        with open(full_path, encoding='cp1251') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                name = row.get("name")
-                price = cls.string_to_number(row.get("price"))
-                quantity = cls.string_to_number(row.get("quantity"))
-                cls(name, price, quantity)
+        if not os.path.exists(full_path):
+            raise FileNotFoundError("Отсутствует файл item.csv")
+        try:
+            with open(full_path, encoding="cp1251") as f:
+                reader = csv.DictReader(f)
+
+                # Проверяем наличие нужных колонок
+                if reader.fieldnames != ["name", "price", "quantity"]:
+                    raise InstantiateCSVError("Файл item.csv поврежден")
+
+                for row in reader:
+                    if not (row.get("name") and row.get("price") and row.get("quantity")):
+                        raise InstantiateCSVError("Файл item.csv поврежден")
+
+                    cls(
+                        row["name"],
+                        cls.string_to_number(row["price"]),
+                        cls.string_to_number(row["quantity"]),
+                    )
+
+        except UnicodeDecodeError:
+            # Если файл имеет неверную кодировку — считаем его поврежденным
+            raise InstantiateCSVError("Файл item.csv поврежден")
 
     @staticmethod
     def string_to_number(s: str) -> int:
